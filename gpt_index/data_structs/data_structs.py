@@ -41,7 +41,7 @@ class Node(IndexStruct):
         super().__post_init__()
         # NOTE: for Node objects, the text field is required
         if self.text is None:
-            raise ValueError("text field not set.")
+            raise ValueError('text field not set.')
 
     # used for GPTTreeIndex
     index: int = 0
@@ -64,7 +64,9 @@ class Node(IndexStruct):
         """Get text."""
         text = super().get_text()
         result_text = (
-            text if self.extra_info_str is None else f"{self.extra_info_str}\n\n{text}"
+            text
+            if self.extra_info_str is None
+            else f'{self.extra_info_str}\n\n{text}'
         )
         return result_text
 
@@ -72,7 +74,7 @@ class Node(IndexStruct):
     def get_type(cls) -> str:
         """Get type."""
         # TODO: consolidate with IndexStructType
-        return "node"
+        return 'node'
 
 
 @dataclass
@@ -94,11 +96,13 @@ class IndexGraph(IndexStruct):
         else:
             return {i: self.all_nodes[i] for i in parent_node.child_indices}
 
-    def insert_under_parent(self, node: Node, parent_node: Optional[Node]) -> None:
+    def insert_under_parent(
+        self, node: Node, parent_node: Optional[Node]
+    ) -> None:
         """Insert under parent node."""
         if node.index in self.all_nodes:
             raise ValueError(
-                "Cannot insert a new node with the same index as an existing node."
+                'Cannot insert a new node with the same index as an existing node.'
             )
         if parent_node is None:
             self.root_nodes[node.index] = node
@@ -110,7 +114,7 @@ class IndexGraph(IndexStruct):
     @classmethod
     def get_type(cls) -> str:
         """Get type."""
-        return "tree"
+        return 'tree'
 
 
 @dataclass
@@ -142,8 +146,10 @@ class KeywordTable(IndexStruct):
     def get_texts(self, keyword: str) -> List[str]:
         """Get texts given keyword."""
         if keyword not in self.table:
-            raise ValueError("Keyword not found in table.")
-        return [self.text_chunks[idx].get_text() for idx in self.table[keyword]]
+            raise ValueError('Keyword not found in table.')
+        return [
+            self.text_chunks[idx].get_text() for idx in self.table[keyword]
+        ]
 
     @property
     def keywords(self) -> Set[str]:
@@ -158,7 +164,7 @@ class KeywordTable(IndexStruct):
     @classmethod
     def get_type(cls) -> str:
         """Get type."""
-        return "keyword_table"
+        return 'keyword_table'
 
 
 @dataclass
@@ -175,7 +181,7 @@ class IndexList(IndexStruct):
     @classmethod
     def get_type(cls) -> str:
         """Get type."""
-        return "list"
+        return 'list'
 
 
 @dataclass
@@ -197,9 +203,9 @@ class IndexDict(IndexStruct):
         """Add text to table, return current position in list."""
         int_id = get_new_int_id(set(self.nodes_dict.keys()))
         if text_id in self.id_map:
-            raise ValueError("text_id cannot already exist in index.")
+            raise ValueError('text_id cannot already exist in index.')
         elif text_id is not None and not isinstance(text_id, str):
-            raise ValueError("text_id must be a string.")
+            raise ValueError('text_id must be a string.')
         elif text_id is None:
             text_id = str(int_id)
         self.id_map[text_id] = int_id
@@ -213,12 +219,12 @@ class IndexDict(IndexStruct):
         nodes = []
         for text_id in text_ids:
             if text_id not in self.id_map:
-                raise ValueError("text_id not found in id_map")
+                raise ValueError('text_id not found in id_map')
             elif not isinstance(text_id, str):
-                raise ValueError("text_id must be a string.")
+                raise ValueError('text_id must be a string.')
             int_id = self.id_map[text_id]
             if int_id not in self.nodes_dict:
-                raise ValueError("int_id not found in nodes_dict")
+                raise ValueError('int_id not found in nodes_dict')
             nodes.append(self.nodes_dict[int_id])
         return nodes
 
@@ -258,11 +264,15 @@ class KG(IndexStruct):
     rel_map: Dict[str, List[Tuple[str, str]]] = field(default_factory=dict)
     embedding_dict: Dict[str, List[float]] = field(default_factory=dict)
 
-    def add_to_embedding_dict(self, triplet_str: str, embedding: List[float]) -> None:
+    def add_to_embedding_dict(
+        self, triplet_str: str, embedding: List[float]
+    ) -> None:
         """Add embedding to dict."""
         self.embedding_dict[triplet_str] = embedding
 
-    def upsert_triplet(self, triplet: Tuple[str, str, str], node: Node) -> None:
+    def upsert_triplet(
+        self, triplet: Tuple[str, str, str], node: Node
+    ) -> None:
         """Upsert a knowledge triplet to the graph."""
         subj, relationship, obj = triplet
         self.add_node([subj, obj], node)
@@ -299,7 +309,7 @@ class KG(IndexStruct):
     def get_node_ids(self, keyword: str, depth: int = 1) -> List[str]:
         """Get the corresponding knowledge for a given keyword."""
         if depth > 1:
-            raise ValueError("Depth > 1 not supported yet.")
+            raise ValueError('Depth > 1 not supported yet.')
         if keyword not in self.table:
             return []
         keywords = [keyword]
@@ -317,7 +327,7 @@ class KG(IndexStruct):
     @classmethod
     def get_type(cls) -> str:
         """Get type."""
-        return "kg"
+        return 'kg'
 
 
 # TODO: remove once we centralize UX around vector index
@@ -393,6 +403,15 @@ class ChatGPTRetrievalPluginIndexDict(IndexDict):
     def get_type(cls) -> str:
         """Get type."""
         return IndexStructType.CHATGPT_RETRIEVAL_PLUGIN
+
+
+class SpellbookIndexDict(IndexDict):
+    """Index dict for Spellbook vector index."""
+
+    @classmethod
+    def get_type(cls) -> str:
+        """Get type."""
+        return IndexStructType.SPELLBOOK
 
 
 class EmptyIndex(IndexStruct):

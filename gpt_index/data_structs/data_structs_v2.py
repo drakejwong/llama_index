@@ -1,7 +1,6 @@
 """Data structures v2.
 
 Nodes are decoupled from the indices.
-
 """
 
 import uuid
@@ -27,7 +26,7 @@ class V2IndexStruct(DataClassJsonMixin):
     def get_summary(self) -> str:
         """Get text summary."""
         if self.summary is None:
-            raise ValueError("summary field of the index_struct not set.")
+            raise ValueError('summary field of the index_struct not set.')
         return self.summary
 
     @classmethod
@@ -91,11 +90,15 @@ class IndexGraph(V2IndexStruct):
             parent_id = parent_node.get_doc_id()
             children_ids = self.node_id_to_children_ids[parent_id]
             return {
-                self.node_id_to_index[child_id]: child_id for child_id in children_ids
+                self.node_id_to_index[child_id]: child_id
+                for child_id in children_ids
             }
 
     def insert_under_parent(
-        self, node: Node, parent_node: Optional[Node], new_index: Optional[int] = None
+        self,
+        node: Node,
+        parent_node: Optional[Node],
+        new_index: Optional[int] = None,
     ) -> None:
         """Insert under parent node."""
         new_index = new_index or self.size
@@ -227,7 +230,9 @@ class KG(V2IndexStruct):
         """Get all node ids."""
         return set.union(*self.table.values())
 
-    def add_to_embedding_dict(self, triplet_str: str, embedding: List[float]) -> None:
+    def add_to_embedding_dict(
+        self, triplet_str: str, embedding: List[float]
+    ) -> None:
         """Add embedding to dict."""
         self.embedding_dict[triplet_str] = embedding
 
@@ -267,7 +272,7 @@ class KG(V2IndexStruct):
     def get_node_ids(self, keyword: str, depth: int = 1) -> List[str]:
         """Get the corresponding knowledge for a given keyword."""
         if depth > 1:
-            raise ValueError("Depth > 1 not supported yet.")
+            raise ValueError('Depth > 1 not supported yet.')
         if keyword not in self.table:
             return []
         keywords = [keyword]
@@ -371,6 +376,16 @@ class ChatGPTRetrievalPluginIndexDict(IndexDict):
 
 
 @dataclass
+class SpellbookIndexDict(IndexDict):
+    """Index dict for Spellbook vector index."""
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.SPELLBOOK
+
+
+@dataclass
 class EmptyIndex(IndexDict):
     """Empty index."""
 
@@ -392,11 +407,11 @@ class CompositeIndex(V2IndexStruct):
 
     def to_dict(self, encode_json: bool = False) -> Dict[str, Json]:
         data_dict = {
-            "all_index_structs": {
+            'all_index_structs': {
                 id_: struct.to_dict(encode_json=encode_json)
                 for id_, struct in self.all_index_structs.items()
             },
-            "root_id": self.root_id,
+            'root_id': self.root_id,
         }
 
         out_dict = {

@@ -40,35 +40,38 @@ class IndexStructType(str, Enum):
             for more information on the SQL vector store index.
         KG ("kg"): Knowledge Graph index.
             See :ref:`Ref-Indices-Knowledge-Graph` for KG indices.
-
+        SPELLBOOK ("spellbook"): Spellbook Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Chroma vector store index.
     """
 
     # TODO: refactor so these are properties on the base class
 
-    NODE = "node"
-    TREE = "tree"
-    LIST = "list"
-    KEYWORD_TABLE = "keyword_table"
+    NODE = 'node'
+    TREE = 'tree'
+    LIST = 'list'
+    KEYWORD_TABLE = 'keyword_table'
 
     # faiss
-    DICT = "dict"
+    DICT = 'dict'
     # simple
-    SIMPLE_DICT = "simple_dict"
-    WEAVIATE = "weaviate"
-    PINECONE = "pinecone"
-    QDRANT = "qdrant"
-    CHROMA = "chroma"
-    VECTOR_STORE = "vector_store"
-    OPENSEARCH = "opensearch"
-    CHATGPT_RETRIEVAL_PLUGIN = "chatgpt_retrieval_plugin"
+    SIMPLE_DICT = 'simple_dict'
+    WEAVIATE = 'weaviate'
+    PINECONE = 'pinecone'
+    QDRANT = 'qdrant'
+    CHROMA = 'chroma'
+    VECTOR_STORE = 'vector_store'
+    OPENSEARCH = 'opensearch'
+    CHATGPT_RETRIEVAL_PLUGIN = 'chatgpt_retrieval_plugin'
+    SPELLBOOK = 'spellbook'
 
     # for SQL index
-    SQL = "sql"
+    SQL = 'sql'
     # for KG index
-    KG = "kg"
+    KG = 'kg'
 
     # EMPTY
-    EMPTY = "empty"
-    COMPOSITE = "composite"
+    EMPTY = 'empty'
+    COMPOSITE = 'composite'
 
-    PANDAS = "pandas"
+    PANDAS = 'pandas'

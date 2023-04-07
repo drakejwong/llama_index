@@ -5,33 +5,20 @@ from typing import Any, Dict, Optional, Sequence, Type
 from requests.adapters import Retry
 
 from gpt_index.data_structs.data_structs_v2 import (
-    ChatGPTRetrievalPluginIndexDict,
-    ChromaIndexDict,
-    FaissIndexDict,
-    IndexDict,
-    OpensearchIndexDict,
-    PineconeIndexDict,
-    QdrantIndexDict,
-    SimpleIndexDict,
-    WeaviateIndexDict,
-)
+    ChatGPTRetrievalPluginIndexDict, ChromaIndexDict, FaissIndexDict,
+    IndexDict, OpensearchIndexDict, PineconeIndexDict, QdrantIndexDict,
+    SimpleIndexDict, SpellbookIndexDict, WeaviateIndexDict)
 from gpt_index.data_structs.node_v2 import Node
 from gpt_index.indices.base import BaseGPTIndex
 from gpt_index.indices.service_context import ServiceContext
 from gpt_index.indices.vector_store.base import GPTVectorStoreIndex
-from gpt_index.vector_stores import (
-    ChatGPTRetrievalPluginClient,
-    ChromaVectorStore,
-    FaissVectorStore,
-    PineconeVectorStore,
-    QdrantVectorStore,
-    SimpleVectorStore,
-    WeaviateVectorStore,
-)
-from gpt_index.vector_stores.opensearch import (
-    OpensearchVectorClient,
-    OpensearchVectorStore,
-)
+from gpt_index.vector_stores import (ChatGPTRetrievalPluginClient,
+                                     ChromaVectorStore, FaissVectorStore,
+                                     PineconeVectorStore, QdrantVectorStore,
+                                     SimpleVectorStore, SpellbookVectorStore,
+                                     WeaviateVectorStore)
+from gpt_index.vector_stores.opensearch import (OpensearchVectorClient,
+                                                OpensearchVectorStore)
 
 
 class GPTSimpleVectorIndex(GPTVectorStoreIndex):
@@ -105,7 +92,7 @@ class GPTFaissIndex(GPTVectorStoreIndex):
     ) -> None:
         """Init params."""
         if faiss_index is None:
-            raise ValueError("faiss_index is required.")
+            raise ValueError('faiss_index is required.')
         vector_store = FaissVectorStore(faiss_index)
 
         super().__init__(
@@ -118,8 +105,11 @@ class GPTFaissIndex(GPTVectorStoreIndex):
 
     @classmethod
     def load_from_disk(
-        cls, save_path: str, faiss_index_save_path: Optional[str] = None, **kwargs: Any
-    ) -> "BaseGPTIndex":
+        cls,
+        save_path: str,
+        faiss_index_save_path: Optional[str] = None,
+        **kwargs: Any,
+    ) -> 'BaseGPTIndex':
         """Load index from disk.
 
         This method loads the index from a JSON file stored on disk. The index data
@@ -145,14 +135,16 @@ class GPTFaissIndex(GPTVectorStoreIndex):
             import faiss
 
             faiss_index = faiss.read_index(faiss_index_save_path)
-            return super().load_from_disk(save_path, faiss_index=faiss_index, **kwargs)
+            return super().load_from_disk(
+                save_path, faiss_index=faiss_index, **kwargs
+            )
         else:
             return super().load_from_disk(save_path, **kwargs)
 
     def save_to_disk(
         self,
         save_path: str,
-        encoding: str = "ascii",
+        encoding: str = 'ascii',
         faiss_index_save_path: Optional[str] = None,
         **save_kwargs: Any,
     ) -> None:
@@ -274,7 +266,7 @@ class GPTWeaviateIndex(GPTVectorStoreIndex):
         """Init params."""
         if vector_store is None:
             if weaviate_client is None:
-                raise ValueError("weaviate_client is required.")
+                raise ValueError('weaviate_client is required.')
             vector_store = WeaviateVectorStore(
                 weaviate_client=weaviate_client, class_prefix=class_prefix
             )
@@ -324,9 +316,9 @@ class GPTQdrantIndex(GPTVectorStoreIndex):
         """Init params."""
         if vector_store is None:
             if client is None:
-                raise ValueError("client is required.")
+                raise ValueError('client is required.')
             if collection_name is None:
-                raise ValueError("collection_name is required.")
+                raise ValueError('collection_name is required.')
             vector_store = QdrantVectorStore(
                 client=client, collection_name=collection_name
             )
@@ -375,8 +367,10 @@ class GPTChromaIndex(GPTVectorStoreIndex):
         """Init params."""
         if vector_store is None:
             if chroma_collection is None:
-                raise ValueError("chroma_collection is required.")
-            vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+                raise ValueError('chroma_collection is required.')
+            vector_store = ChromaVectorStore(
+                chroma_collection=chroma_collection
+            )
         assert vector_store is not None
 
         super().__init__(
@@ -427,7 +421,7 @@ class GPTOpensearchIndex(GPTVectorStoreIndex):
         """Init params."""
         if vector_store is None:
             if client is None:
-                raise ValueError("client is required.")
+                raise ValueError('client is required.')
             vector_store = OpensearchVectorStore(client)
         assert vector_store is not None
 
@@ -474,9 +468,9 @@ class ChatGPTRetrievalPluginIndex(GPTVectorStoreIndex):
 
         if vector_store is None:
             if endpoint_url is None:
-                raise ValueError("endpoint_url is required.")
+                raise ValueError('endpoint_url is required.')
             if bearer_token is None:
-                raise ValueError("bearer_token is required.")
+                raise ValueError('bearer_token is required.')
             vector_store = ChatGPTRetrievalPluginClient(
                 endpoint_url,
                 bearer_token,
@@ -485,6 +479,28 @@ class ChatGPTRetrievalPluginIndex(GPTVectorStoreIndex):
             )
         assert vector_store is not None
 
+        super().__init__(
+            nodes=nodes,
+            index_struct=index_struct,
+            service_context=service_context,
+            vector_store=vector_store,
+            **kwargs,
+        )
+
+
+class GPTSpellbookIndex(GPTVectorStoreIndex):
+    """GPT Spellbook Index."""
+
+    index_struct_cls: Type[IndexDict] = SpellbookIndexDict
+
+    def __init__(
+        self,
+        nodes: Optional[Sequence[Node]] = None,
+        service_context: Optional[ServiceContext] = None,
+        index_struct: Optional[IndexDict] = None,
+        vector_store: Optional[SpellbookVectorStore] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(
             nodes=nodes,
             index_struct=index_struct,

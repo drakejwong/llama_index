@@ -9,53 +9,53 @@ from gpt_index.data_structs.table import SQLStructTable
 try:
     import fire
 except ImportError:
-    print("Please run `pip install fire`")
+    print('Please run `pip install fire`')
 
-from gpt_index.data_structs.data_structs import (
-    KG,
-    ChromaIndexDict,
-    EmptyIndex,
-    FaissIndexDict,
-    IndexDict,
-    IndexGraph,
-    IndexList,
-    IndexStruct,
-    KeywordTable,
-    Node,
-    OpensearchIndexDict,
-    PineconeIndexDict,
-    QdrantIndexDict,
-    SimpleIndexDict,
-    WeaviateIndexDict,
-)
+from gpt_index.data_structs.data_structs import (KG, ChromaIndexDict,
+                                                 EmptyIndex, FaissIndexDict,
+                                                 IndexDict, IndexGraph,
+                                                 IndexList, IndexStruct,
+                                                 KeywordTable, Node,
+                                                 OpensearchIndexDict,
+                                                 PineconeIndexDict,
+                                                 QdrantIndexDict,
+                                                 SimpleIndexDict,
+                                                 SpellbookIndexDict,
+                                                 WeaviateIndexDict)
 from gpt_index.data_structs.data_structs_v2 import KG as V2KG
-from gpt_index.data_structs.data_structs_v2 import ChromaIndexDict as V2ChromaIndexDict
-from gpt_index.data_structs.data_structs_v2 import FaissIndexDict as V2FaissIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    ChromaIndexDict as V2ChromaIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    FaissIndexDict as V2FaissIndexDict
 from gpt_index.data_structs.data_structs_v2 import IndexDict as V2IndexDict
 from gpt_index.data_structs.data_structs_v2 import IndexGraph as V2IndexGraph
 from gpt_index.data_structs.data_structs_v2 import IndexList as V2IndexList
-from gpt_index.data_structs.data_structs_v2 import KeywordTable as V2KeywordTable
-from gpt_index.data_structs.data_structs_v2 import (
-    OpensearchIndexDict as V2OpensearchIndexDict,
-)
-from gpt_index.data_structs.data_structs_v2 import (
-    PineconeIndexDict as V2PineconeIndexDict,
-)
-from gpt_index.data_structs.data_structs_v2 import QdrantIndexDict as V2QdrantIndexDict
-from gpt_index.data_structs.data_structs_v2 import SimpleIndexDict as V2SimpleIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    KeywordTable as V2KeywordTable
+from gpt_index.data_structs.data_structs_v2 import \
+    OpensearchIndexDict as V2OpensearchIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    PineconeIndexDict as V2PineconeIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    QdrantIndexDict as V2QdrantIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    SimpleIndexDict as V2SimpleIndexDict
+from gpt_index.data_structs.data_structs_v2 import \
+    SpellbookIndexDict as V2SpellbookIndexDict
 from gpt_index.data_structs.data_structs_v2 import V2IndexStruct
-from gpt_index.data_structs.data_structs_v2 import (
-    WeaviateIndexDict as V2WeaviateIndexDict,
-)
+from gpt_index.data_structs.data_structs_v2 import \
+    WeaviateIndexDict as V2WeaviateIndexDict
 from gpt_index.data_structs.node_v2 import DocumentRelationship
 from gpt_index.data_structs.node_v2 import ImageNode as V2ImageNode
 from gpt_index.data_structs.node_v2 import Node as V2Node
 from gpt_index.data_structs.struct_type import IndexStructType
-from gpt_index.old_docstore import V1DocumentStore
 from gpt_index.docstore import DocumentStore as V2DocumentStore
+from gpt_index.old_docstore import V1DocumentStore
 from gpt_index.tools.file_utils import add_prefix_suffix_to_file_path
 
-INDEX_STRUCT_TYPE_TO_V1_INDEX_STRUCT_CLASS: Dict[IndexStructType, Type[IndexStruct]] = {
+INDEX_STRUCT_TYPE_TO_V1_INDEX_STRUCT_CLASS: Dict[
+    IndexStructType, Type[IndexStruct]
+] = {
     IndexStructType.TREE: IndexGraph,
     IndexStructType.LIST: IndexList,
     IndexStructType.KEYWORD_TABLE: KeywordTable,
@@ -72,9 +72,9 @@ INDEX_STRUCT_TYPE_TO_V1_INDEX_STRUCT_CLASS: Dict[IndexStructType, Type[IndexStru
     IndexStructType.NODE: Node,
 }
 
-V1_INDEX_STRUCT_KEY = "index_struct"
-V1_INDEX_STRUCT_ID_KEY = "index_struct_id"
-V1_DOC_STORE_KEY = "docstore"
+V1_INDEX_STRUCT_KEY = 'index_struct'
+V1_INDEX_STRUCT_ID_KEY = 'index_struct_id'
+V1_DOC_STORE_KEY = 'docstore'
 
 
 def node_to_v2(node: Node) -> V2Node:
@@ -139,9 +139,13 @@ def index_list_to_v2(struct: IndexList) -> Tuple[V2IndexList, List[V2Node]]:
     return struct_v2, nodes_v2
 
 
-def keyword_table_to_v2(struct: KeywordTable) -> Tuple[V2KeywordTable, List[V2Node]]:
+def keyword_table_to_v2(
+    struct: KeywordTable,
+) -> Tuple[V2KeywordTable, List[V2Node]]:
     table_v2 = {
-        keyword: set(struct.text_chunks[index].get_doc_id() for index in indices)
+        keyword: set(
+            struct.text_chunks[index].get_doc_id() for index in indices
+        )
         for keyword, indices in struct.table.items()
     }
     struct_v2 = V2KeywordTable(table=table_v2)
@@ -188,6 +192,8 @@ def index_dict_to_v2(struct: IndexDict) -> Tuple[V2IndexDict, List[V2Node]]:
         struct_v2 = V2ChromaIndexDict(**dataclasses.asdict(struct_v2))
     if isinstance(struct, OpensearchIndexDict):
         struct_v2 = V2OpensearchIndexDict(**dataclasses.asdict(struct_v2))
+    if isinstance(struct, SpellbookIndexDict):
+        struct_v2 = V2SpellbookIndexDict(**dataclasses.asdict(struct_v2))
     return struct_v2, nodes_v2
 
 
@@ -216,7 +222,7 @@ def convert_to_v2_index_struct_and_docstore(
     elif isinstance(index_struct, KeywordTable):
         struct_v2, nodes_v2 = keyword_table_to_v2(index_struct)
     else:
-        raise NotImplementedError(f"Cannot migrate {type(index_struct)} yet.")
+        raise NotImplementedError(f'Cannot migrate {type(index_struct)} yet.')
 
     docstore_v2 = V2DocumentStore()
     docstore_v2.add_documents(nodes_v2, allow_update=False)
@@ -239,7 +245,9 @@ def load_v1_index_struct_in_docstore(
 def load_v1_index_struct_separate(
     file_dict: dict, index_struct_type: IndexStructType
 ) -> Tuple[IndexStruct, V1DocumentStore]:
-    index_struct_cls = INDEX_STRUCT_TYPE_TO_V1_INDEX_STRUCT_CLASS[index_struct_type]
+    index_struct_cls = INDEX_STRUCT_TYPE_TO_V1_INDEX_STRUCT_CLASS[
+        index_struct_type
+    ]
     index_struct = index_struct_cls.from_dict(file_dict[V1_INDEX_STRUCT_KEY])
     docstore = V1DocumentStore.load_from_dict(
         file_dict[V1_DOC_STORE_KEY],
@@ -252,14 +260,16 @@ def load_v1(
     file_dict: dict, index_struct_type: Optional[IndexStructType] = None
 ) -> Tuple[IndexStruct, V1DocumentStore]:
     if V1_INDEX_STRUCT_KEY in file_dict:
-        assert index_struct_type is not None, "Must specify index_struct_type to load."
+        assert (
+            index_struct_type is not None
+        ), 'Must specify index_struct_type to load.'
         index_struct, docstore = load_v1_index_struct_separate(
             file_dict, index_struct_type
         )
     elif V1_INDEX_STRUCT_ID_KEY in file_dict:
         index_struct, docstore = load_v1_index_struct_in_docstore(file_dict)
     else:
-        raise ValueError("index_struct or index_struct_id must be provided.")
+        raise ValueError('index_struct or index_struct_id must be provided.')
     return index_struct, docstore
 
 
@@ -285,21 +295,21 @@ def convert_to_v2_file(
     v1_path: str,
     index_struct_type: Optional[IndexStructType] = None,
     v2_path: Optional[str] = None,
-    encoding: str = "ascii",
+    encoding: str = 'ascii',
 ) -> None:
-    with open(v1_path, "r") as f:
+    with open(v1_path, 'r') as f:
         file_str = f.read()
     v1_dict = json.loads(file_str)
-    print(f"Successfully loaded V1 JSON file from: {v1_path}")
+    print(f'Successfully loaded V1 JSON file from: {v1_path}')
 
     v2_dict = convert_to_v2_dict(v1_dict, index_struct_type)
 
     v2_str = json.dumps(v2_dict)
-    v2_path = v2_path or add_prefix_suffix_to_file_path(v1_path, suffix="_v2")
-    with open(v2_path, "wt", encoding=encoding) as f:
+    v2_path = v2_path or add_prefix_suffix_to_file_path(v1_path, suffix='_v2')
+    with open(v2_path, 'wt', encoding=encoding) as f:
         f.write(v2_str)
-    print(f"Successfully created V2 JSON file at: {v2_path}")
+    print(f'Successfully created V2 JSON file at: {v2_path}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     fire.Fire(convert_to_v2_file)
